@@ -1,7 +1,6 @@
 """This is a FastApi application main module"""
 from io import BytesIO
 
-import requests
 import uvicorn
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import StreamingResponse
@@ -26,12 +25,9 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.post("/remove_background")
-def remove_background(file: UploadFile = None, url: str | None = None):
+def remove_background(file: UploadFile):
     """removes background of an image"""
-    if file:
-        content: bytes = file.file.read()
-    else:
-        content = download_image(url)
+    content: bytes = file.file.read()
     img_no_bg: bytes = remove(content)
     return StreamingResponse(BytesIO(img_no_bg), media_type="image/jpeg")
 
