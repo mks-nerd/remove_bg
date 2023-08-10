@@ -30,7 +30,3 @@ def remove_background(file: UploadFile):
     content: bytes = file.file.read()
     img_no_bg: bytes = remove(content)
     return StreamingResponse(BytesIO(img_no_bg), media_type="image/jpeg")
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
