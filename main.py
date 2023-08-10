@@ -1,32 +1,15 @@
-"""This is a FastApi application main module"""
 from io import BytesIO
 
-import uvicorn
-from fastapi import FastAPI, UploadFile
-from fastapi.responses import StreamingResponse
-from fastapi.templating import Jinja2Templates
-from rembg import remove  # type: ignore
+from flask import Flask, render_template, request, send_file
+from rembg import remove
+app = Flask(__name__)
 
 
-def download_image(url: str):
-    res = requests.get(url, stream=True)
-    image = res.content
-    return image
-
-
-def create_app() -> FastAPI:
-    """This is the app"""
-    _app: FastAPI = FastAPI(title="learn")
-    return _app
-
-
-app: FastAPI = create_app()
-templates = Jinja2Templates(directory="templates")
-
-
-@app.post("/remove_background")
-def remove_background(file: UploadFile):
-    """removes background of an image"""
-    content: bytes = file.file.read()
-    img_no_bg: bytes = remove(content)
-    return StreamingResponse(BytesIO(img_no_bg), media_type="image/jpeg")
+@app.route("/", methods=["GET", "POST"])
+def remove_bg():
+    if request.method == "POST":
+        file = request.files["file"]
+        data = file.read()
+        data_no_bg = remove(data)
+        return send_file(BytesIO(data_no_bg), download_name=file.filename, as_attachment=True)
+    return render_template("index.html")
